@@ -1,0 +1,9 @@
+﻿<Application x:Class="ModbusTester_WPF.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml"
+             xmlns:conv="clr-namespace:ModbusTester_WPF.Converters">
+    <Application.Resources>
+        <conv:IndexConverter x:Key="ItemIndex"></conv:IndexConverter>
+    </Application.Resources>
+</Application>

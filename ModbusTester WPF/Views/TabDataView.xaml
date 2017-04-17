@@ -1,0 +1,267 @@
+﻿<Page x:Class="ModbusTester_WPF.Views.TabDataView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:vms="clr-namespace:ModbusTester_WPF.ViewModels"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:attached="clr-namespace:ModbusTester_WPF.CustomControls"
+      xmlns:oxy="http://oxyplot.org/wpf"
+      mc:Ignorable="d" 
+      d:DataContext="{d:DesignInstance vms:MainViewModel}"
+      d:DesignHeight="415" d:DesignWidth="800"
+      
+	Title="DataView" Background="AliceBlue">
+    <Grid>
+        <TabControl>
+            <!--<TabControl.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Отдельное окно" Command="{Binding ExtensiveWindowCommand}"/>
+                </ContextMenu>
+            </TabControl.ContextMenu>-->
+            <TabItem Header="Данные">
+                <Grid Background="#FFE5E5E5">
+
+                    <Grid Background="#FFE5E5E5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="125"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="52"/>
+                                <RowDefinition Height="52"/>
+                                <RowDefinition Height="52"/>
+                                <RowDefinition Height="52"/>
+                                <RowDefinition/>
+
+                            </Grid.RowDefinitions>
+                            <TextBlock VerticalAlignment="Center" Margin="5,20,0,14" FontSize="14" Text="Номер станции:" Height="18"/>
+                            <TextBlock VerticalAlignment="Center" Margin="5,20,0,14" FontSize="14" Grid.Row="1" Text="Тип памяти:" Height="18"/>
+                            <TextBlock VerticalAlignment="Center" Margin="5,16,0,16" FontSize="14" Grid.Row="2" Text="Начальный адрес:" Height="20"/>
+                            <TextBlock VerticalAlignment="Center" Margin="5,16,0,16" FontSize="14" Grid.Row="3" Text="Количество:" Height="20"/>
+                            <TextBlock VerticalAlignment="Center" Margin="5,16,0,16" FontSize="14" Grid.Row="3" Text="Количество:" Height="20"/>
+                        </Grid>
+                        <Grid Grid.Column="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="52"/>
+                                <RowDefinition Height="52"/>
+                                <RowDefinition Height="52"/>
+                                <RowDefinition Height="52"/>
+                                <RowDefinition/>
+
+                            </Grid.RowDefinitions>
+                            <TextBox VerticalAlignment="Center" Margin="5,0,0,0" FontSize="14" Text="{Binding ModbusConfig.Slaves}" attached:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"/>
+                            <ComboBox VerticalAlignment="Center" Margin="5,14,0,14" FontSize="14" Grid.Row="1" ItemsSource="{Binding AvailableMemTypes}" SelectedItem="{Binding ModbusConfig.SelectedMemType}" HorizontalAlignment="Left" Width="115"/>
+
+                            <TextBox VerticalAlignment="Center" Margin="5,0,0,0" FontSize="14" Grid.Row="2" Text="{Binding ModbusConfig.StartAddress}" attached:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"/>
+                            <TextBox VerticalAlignment="Center" Margin="5,0,0,0" FontSize="14" Grid.Row="3" Text="{Binding ModbusConfig.Amount}" attached:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"/>
+                        </Grid>
+                        <Grid Grid.Column="2" DataContext="{Binding DataControlViewModel}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="4"/>
+                                <ColumnDefinition Width="231*"/>
+                                <ColumnDefinition Width="310*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="26"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Menu Grid.Row="0" FontSize="14" Grid.Column="1" Grid.ColumnSpan="2">
+                                <MenuItem BorderThickness="1" BorderBrush="#FFCFB79B" Header="Bin" Command="{Binding SetBinFormat}"/>
+                                <MenuItem BorderThickness="1" BorderBrush="#FFCFB79B" Header="Dec" Command="{Binding SetUshortFormat}"/>
+                                <MenuItem BorderThickness="1" BorderBrush="#FFCFB79B" Header="Hex" Command="{Binding SetHexFormat}"/>
+                                <MenuItem BorderThickness="1" BorderBrush="#FFCFB79B" Header="UInt32" Command="{Binding SetUIntFormat}"/>
+                                <MenuItem BorderThickness="1" BorderBrush="#FFCFB79B" Header="UInt64" Command="{Binding SetULongFormat}"/>
+                                <MenuItem BorderThickness="1" BorderBrush="#FFCFB79B" Header="Single" Command="{Binding SetFloatFormat}"/>
+                                <MenuItem BorderThickness="1" BorderBrush="#FFCFB79B" Header="Double" Command="{Binding SetDoubleFormat}"/>
+
+                            </Menu>
+                            <!--<StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" FlowDirection="RightToLeft">
+                                <TextBlock Text="Запись функцией №6" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" Height="15" Margin="5,0" IsChecked="{Binding WriteWithF6}"/>
+                                <TextBlock Text="Запись: долбить до посинения" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" Height="15" Margin="5,0" IsChecked="{Binding InfiniteWrite}"/>
+                            </StackPanel>-->
+                            <Separator Grid.Row="0"  HorizontalAlignment="Left" Margin="0" Width="2"
+                                       Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Grid.RowSpan="2" Grid.Column="0" />
+                            <DataGrid Grid.Row="1" Grid.Column="1" ItemsSource="{Binding ControlTableSource}" AutoGenerateColumns="False" SelectedIndex="{Binding ControlPoint}" IsReadOnly="True">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Адрес" Width="60" Binding="{Binding Address}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Значение" Width="Auto" Binding="{Binding Value}"></DataGridTextColumn>
+                                </DataGrid.Columns>
+                                <DataGrid.InputBindings>
+                                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenEditDialog}" CommandParameter="{Binding ControlTableSource/}"/>
+                                </DataGrid.InputBindings>
+                            </DataGrid>
+                            <Border  Grid.Row="1" Grid.Column="2" BorderBrush="#FFC3B89A" BorderThickness="2" Margin="2" Background="#FFE8E8E8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="24*"/>
+                                        <ColumnDefinition Width="127*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="20"/>
+                                        <RowDefinition Height="25"/>
+                                        <RowDefinition Height="70"/>
+                                        <RowDefinition Height="25"/>
+                                        <RowDefinition Height="25"/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Border Grid.Row="0" Grid.ColumnSpan="2"  BorderBrush="#FFC3B89A" BorderThickness="0,0,0,1" >
+                                        <Border.Background>
+                                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                <GradientStop Color="#FFF1F1F1" Offset="1"/>
+                                                <GradientStop Color="White"/>
+                                                <GradientStop Color="White" Offset="0.463"/>
+                                                <GradientStop Color="#FFF7F7F7" Offset="0.515"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <TextBlock Text="Запись регистров" Margin="6,0,0,0"/>
+                                    </Border>
+                                    <Separator HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" Grid.RowSpan="3" Width="2" Background="#FFA2A2A2" 
+                                               Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Foreground="{x:Null}" Margin="0,2"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Адрес" Margin="5,4,0,5" VerticalAlignment="Center" Height="16"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Значение" Margin="5,5,0,4" VerticalAlignment="Center" Height="16"/>
+                                    <Border Grid.Row="2" Grid.Column="0" Margin="5,24,4,24" Background="White" BorderBrush="#FF6E6E6E" BorderThickness="1">
+                                        <TextBlock Text="{Binding EditRegister.Address}"  VerticalAlignment="Center" Padding="5,0,0,0" />
+                                    </Border>
+                                    <Border Grid.Row="2" Grid.Column="1" Margin="3,24" Background="White" BorderBrush="#FF6E6E6E" BorderThickness="1">
+                                        <TextBox  Text="{Binding EditRegister.NumericData}" Background="{x:Null}" VerticalAlignment="Center" BorderBrush="{x:Null}" VerticalContentAlignment="Center">
+                                            <TextBox.Style>
+                                                <Style TargetType="TextBox">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding EditRegister.Mode}" Value="7">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding EditRegister.Mode}" Value="4">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
+                                    </Border>
+
+                                    <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding EditRegister.CoilData}" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" HorizontalAlignment="Center" VerticalContentAlignment="Stretch">
+                                        <CheckBox.Style>
+                                            <Style TargetType="CheckBox">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding EditRegister.Mode}" Value="7">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </CheckBox.Style>
+                                    </CheckBox>
+
+
+                                    <ListBox Grid.Row="2" Grid.Column="1" ItemsSource="{Binding EditRegister.BinData}" VerticalContentAlignment="Center" Margin="0" VerticalAlignment="Center">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition/>
+                                                        <RowDefinition/>
+                                                    </Grid.RowDefinitions>
+                                                    <Label Grid.Row="0" Content="{Binding Index}" Padding="0" HorizontalContentAlignment="Center"/>
+                                                    <CheckBox Grid.Row="1" IsChecked="{Binding Value}"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                        <ListBox.Style>
+                                            <Style TargetType="ListBox">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding EditRegister.Mode}" Value="4">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ListBox.Style>
+                                    </ListBox>
+                                    <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal">
+                                        <Button Content="Запись Single" Margin="5,0" Command="{Binding WriteSingleCommand}" Width="80"/>
+                                        <Button Content="Запись Multiple" Margin="5,0" Command="{Binding WriteMultipleCommand}" Width="120"/>
+                                    </StackPanel>
+
+
+                                </Grid>
+                            </Border>
+
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Логгер">
+                <DataGrid Grid.Row="1" Grid.Column="0" Background="{x:Null}" BorderBrush="Black" BorderThickness="2" Margin="2" ItemsSource="{Binding DataTab}"  AutoGenerateColumns="False" 
+                              IsReadOnly="True">
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="DodgerBlue"/>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header=" №" Width="50"  Binding="{Binding Index}"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Запрос" Width="27*" Binding="{Binding RequestData}"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Ответ" Width="50*" Binding="{Binding ResponseData}"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Ошибка" Width="50*" Binding="{Binding ErrorMessage}"></DataGridTextColumn>
+                    </DataGrid.Columns>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ErrorLevel}" Value="1">
+                                    <Setter Property="Background" Value="#FFFFFBB1"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ErrorLevel}" Value="2">
+                                    <Setter Property="Background" Value="#FFFFB9B9"/>
+
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                </DataGrid>
+            </TabItem>
+            <TabItem Header="Графики">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="338*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="120"/>
+                    </Grid.ColumnDefinitions>
+                    <oxy:PlotView Grid.Column="0" Model="{Binding GraphModel.Model}"/>
+                    <ListView Grid.Column="1" ItemsSource="{Binding GraphModel.SeriesCollection}">
+                        
+                    </ListView>
+                    <StackPanel Grid.Column="2">
+                        <Border BorderBrush="Bisque" BorderThickness="2" Margin="0,0,0,5">
+                            <StackPanel>
+                                <Button Margin="5" Content="Подключиться" Command="{Binding GraphModel.StartUpdateCommand}"></Button>
+                                <Button Margin="5" Content="Отключиться" Command="{Binding GraphModel.StopUpdateCommand}"></Button>
+                            </StackPanel>
+                        </Border>
+                        <Border BorderBrush="Bisque" BorderThickness="2">
+                            <StackPanel>
+                                <TextBlock Margin="5">Адрес:</TextBlock>
+                                <TextBox Margin="5" Text="{Binding GraphModel.Address}"></TextBox>
+                                <Button Margin="5" Content="Добавить" Command="{Binding GraphModel.AddSeriesCommand}"></Button>
+                                <Button Margin="5" Content="Удалить" Command="{Binding GraphModel.RemoveSeriesCommand}"></Button>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</Page>
+
+
+
