@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using ModbusLib.Device;
+using ModbusLib;
+
 using System.Net;
 using System.Net.Sockets;
 
@@ -30,25 +32,27 @@ namespace ModbusTcpMaster
 
                         // read five input values
                         ushort startAddress = 0;
-                        ushort numHoldings = 5;
+                        ushort numHoldings = 10;
                         while (true)
                         {
-                            //ushort[] inputs = master.ReadHoldingRegisters(startAddress, numHoldings);
-                            bool[] inputs = master.ReadCoils(slaveId,startAddress, numHoldings);
-                            for (int i = 0; i < numHoldings; i++)
+                            ushort[] inputs = master.ReadHoldingRegisters(slaveId, startAddress, numHoldings);
+                            //bool[] inputs = master.ReadCoils(slaveId, startAddress, numHoldings);
+                            Console.Write(startAddress + "::");
+                            for (int i = 0; i < inputs.Length; i++)
                             {
-                                Console.Write($"Holding {(startAddress + i)}={(inputs[i])}   ");
+                                Console.Write(" "+(inputs[i]));
                             }
                             Console.WriteLine();
-                            Console.WriteLine("====================================================================");
-                            Thread.Sleep(2000);
+                            startAddress+=10;
+                            Thread.Sleep(500);
                         }
                         Console.Read();
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    var tmp = (SlaveException)ex;
+                    Console.WriteLine(tmp.Message + tmp.SlaveExceptionCode);
                     Console.Read();
                 }
         }
