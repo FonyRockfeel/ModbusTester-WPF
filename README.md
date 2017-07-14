@@ -11,6 +11,6 @@ Unfortunately RU is the only language of interface.
 - [x] Basic functionality
 - [x] Serial port support
 - [ ] ModbusTCP and Modbus-over-TCP support
-- [ ] Add switching between two or more interface languages
+- [ ] Add switching between two or more interface languages (now only Russian is available)
 
 In this tool I used sources of modbus protocol implementation [NModbus4](https://github.com/NModbus4/NModbus4)  with some additions
