@@ -92,7 +92,7 @@
                                     <DataGridTextColumn Header="Значение" Width="Auto" Binding="{Binding Value}"></DataGridTextColumn>
                                 </DataGrid.Columns>
                                 <DataGrid.InputBindings>
-                                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenEditDialog}" CommandParameter="{Binding ControlTableSource/}"/>
+                                    <MouseBinding MouseAction="LeftClick" Command="{Binding OpenEditDialog}" CommandParameter="{Binding ControlTableSource/}"/>
                                 </DataGrid.InputBindings>
                             </DataGrid>
                             <Border  Grid.Row="1" Grid.Column="2" BorderBrush="#FFC3B89A" BorderThickness="2" Margin="2" Background="#FFE8E8E8">

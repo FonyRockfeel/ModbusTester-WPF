@@ -6,6 +6,8 @@ using System.Globalization;
 using System.IO.Ports;
 using System.Linq;
 using System.Runtime.Remoting.Channels;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -39,7 +41,8 @@ namespace ModbusTester_WPF.ViewModels
         private ModbusConfig _modbusCfg;
 
         private ExtensiveWindow ExtWindow;
-        
+        private CancellationTokenSource _tokenSrc;
+       
 
         public MBRequestData ReadData
         {
@@ -195,6 +198,7 @@ namespace ModbusTester_WPF.ViewModels
             }
         }
 
+        private TabDataView _tabsView;
         private ModBusDriver _driver;            
         private bool _isStopped;
         private double _scanRate;
@@ -242,26 +246,38 @@ namespace ModbusTester_WPF.ViewModels
 
             ReadData = new MBRequestData();
             WriteData = new MBRequestData();
-            Navigator.Navigate(new TabDataView(), this);
+            _tabsView = new TabDataView();
+            Navigator.Navigate(_tabsView, this);
             ReadClearCommand = new RelayCommand(p => ReadData.ClearRequestData());
             WriteClearCommand = new RelayCommand(p => WriteData.ClearRequestData());
             SaveCommand = new RelayCommand(p =>
             {
-                Settings.Default.ModBusConfig = _modbusCfg;
-                ModbusConfig.Save(ModbusConfig);
-                Navigator.Navigate(new TabDataView(), this);
+                try
+                {
+                    Settings.Default.ModBusConfig = _modbusCfg;
+                    ModbusConfig.Save(ModbusConfig);
+                    Navigator.Navigate(_tabsView, this);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message + ex.InnerException?.Message);
+                }
+
             });
-            CancelCommand = new RelayCommand(p => Navigator.Navigate(new TabDataView(), this));
+            CancelCommand = new RelayCommand(p => Navigator.Navigate(_tabsView, this));
 
             ExtensiveWindowCommand = new RelayCommand(p =>
             {
                 ExtWindow.Show();
                 ExtWindow.Activate();
             });
+
             SettingsViewCommand = new RelayCommand(p => Navigator.Navigate(new SettingsView(), this));
 
             RunCommand = new RelayCommand(p =>
             {
+                var metroWindowCol = Application.Current.Windows;
+                _tokenSrc = new CancellationTokenSource();
                 RunPollig();
             });
 
@@ -269,6 +285,7 @@ namespace ModbusTester_WPF.ViewModels
             {
                 _timer.Stop();
                 _timer.Tick -= _dataUpdateHandler;
+                _tokenSrc?.Cancel();
                 IsStopped = true;
             });
             UpdatePorts = new RelayCommand(p =>
@@ -509,8 +526,8 @@ namespace ModbusTester_WPF.ViewModels
             _timer.Start();
             IsStopped = false;
         }
-
-        private void UpdateData()
+        
+        private async void UpdateData()
         {
             byte[] requestArr;
             byte[] responseArr;
@@ -518,7 +535,23 @@ namespace ModbusTester_WPF.ViewModels
             int code=0;
             try
             {
-                code = ModBusDriver.GetData(out requestArr, out responseArr, out errorMess);
+                var resData = await Task.Run(() =>
+                {
+                    byte[] req;
+                    byte[] res;
+                    string err;
+                    var cd = ModBusDriver.GetData(out req, out res, out err);
+                    return new {Req = req, Res = res, Err = err, Cd = cd};
+                }, _tokenSrc.Token);
+                if (resData == null) return;
+                requestArr = resData.Req;
+                responseArr = resData.Res;
+                errorMess = resData.Err;
+                code = resData.Cd;
+            }
+            catch (OperationCanceledException ex)
+            {
+                return;
             }
             catch (InvalidOperationException ex)
             {

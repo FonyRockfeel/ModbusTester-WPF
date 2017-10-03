@@ -74,6 +74,7 @@ namespace ModbusTester_WPF.ViewModels
                 UpdateTableSource(_mode);
             });
             OpenEditDialog = new RelayCommand(o =>{
+                if(ControlTableSource.Count==0) return;
                 EditRegister.BeginEdit(_mode, ControlTableSource[ControlPoint]);
             });
 
