@@ -7,7 +7,7 @@
         xmlns:customControls="clr-namespace:ModbusTester_WPF.CustomControls"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance vm:MainViewModel}"
-        Title="MainWindow" Height="600" Width="800" Background="AliceBlue" ResizeMode="CanMinimize">
+        Title="MainWindow" Height="600" Width="812" Background="AliceBlue" ResizeMode="CanMinimize" Topmost="True">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -36,8 +36,8 @@
                 </customControls:CustomComboBox>
                 <TextBlock Text="Скорость:" VerticalAlignment="Center" FontSize="14" Grid.Column="2" Height="22" Margin="5,6"/>
                 <TextBlock Text="Обновление, мс:" VerticalAlignment="Center" FontSize="14" Grid.Column="4" Height="22" Margin="5,6"/>
-                <ComboBox Grid.Column="3" Margin="5" IsEditable="True" ItemsSource="{Binding AvailableBaudrates}" SelectedItem="{Binding ModbusConfig.BaudRate}"/>
-                <ComboBox Grid.Column="5" Margin="5" IsEditable="True" ItemsSource="{Binding UpdateInterval}" SelectedItem="{Binding ScanRate}"/>
+                <ComboBox Grid.Column="3" Margin="5" IsEditable="True" ItemsSource="{Binding AvailableBaudrates}" Text="{Binding ModbusConfig.BaudRate}"/>
+                <ComboBox Grid.Column="5" Margin="5" IsEditable="True" ItemsSource="{Binding UpdateInterval}" Text="{Binding ScanRate}"/>
                 <Button Content="Запуск" Margin="2"  Grid.Column="6" IsEnabled="{Binding IsStopped}" Command="{Binding RunCommand}"/>
                 <Button Content="Стоп" Margin="2"  Grid.Column="7" Command="{Binding StopCommand}"/>
                 <Button Content="Настройки" Margin="2"  Grid.Column="8" Command="{Binding SettingsViewCommand}"/>

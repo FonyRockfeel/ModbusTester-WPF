@@ -4,13 +4,15 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:vms="clr-namespace:ModbusTester_WPF.ViewModels"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:i="clr-namespace:Microsoft;assembly=System.Windows.Interactivity"
       xmlns:attached="clr-namespace:ModbusTester_WPF.CustomControls"
       xmlns:oxy="http://oxyplot.org/wpf"
+      xmlns:interactivity="http://schemas.microsoft.com/expression/2010/interactivity"
       mc:Ignorable="d" 
       d:DataContext="{d:DesignInstance vms:MainViewModel}"
       d:DesignHeight="415" d:DesignWidth="800"
       
-	Title="DataView" Background="AliceBlue">
+	Title="DataView" Background="AliceBlue" >
     <Grid>
         <TabControl>
             <!--<TabControl.ContextMenu>
@@ -91,9 +93,9 @@
                                     <DataGridTextColumn Header="Адрес" Width="60" Binding="{Binding Address}"></DataGridTextColumn>
                                     <DataGridTextColumn Header="Значение" Width="Auto" Binding="{Binding Value}"></DataGridTextColumn>
                                 </DataGrid.Columns>
-                                <DataGrid.InputBindings>
-                                    <MouseBinding MouseAction="LeftClick" Command="{Binding OpenEditDialog}" CommandParameter="{Binding ControlTableSource/}"/>
-                                </DataGrid.InputBindings>
+                                <!--<DataGrid.InputBindings>
+                                    <MouseBinding MouseAction="LeftClick" Command="{Binding OpenEditDialog}" CommandParameter="{Binding ControlTableSource/}"/>                                    
+                                </DataGrid.InputBindings>-->
                             </DataGrid>
                             <Border  Grid.Row="1" Grid.Column="2" BorderBrush="#FFC3B89A" BorderThickness="2" Margin="2" Background="#FFE8E8E8">
                                 <Grid>
@@ -104,7 +106,8 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="20"/>
                                         <RowDefinition Height="25"/>
-                                        <RowDefinition Height="70"/>
+                                        <RowDefinition Height="16"/>
+                                        <RowDefinition Height="91"/>
                                         <RowDefinition Height="25"/>
                                         <RowDefinition Height="25"/>
                                         <RowDefinition/>
@@ -120,15 +123,20 @@
                                         </Border.Background>
                                         <TextBlock Text="Запись регистров" Margin="6,0,0,0"/>
                                     </Border>
-                                    <Separator HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" Grid.RowSpan="3" Width="2" Background="#FFA2A2A2" 
-                                               Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Foreground="{x:Null}" Margin="0,2"/>
+                                    <Separator HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" Grid.RowSpan="5" Width="2" Background="#FFA2A2A2" 
+                                               Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Foreground="{x:Null}" Margin="0,2,0,17"/>
+                                    <Separator VerticalAlignment="Top"  Grid.Row="5" Height="2" Background="#FFA2A2A2" 
+                                               Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Foreground="{x:Null}" Margin="0,6,0,0" Grid.ColumnSpan="2"/>
                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Адрес" Margin="5,4,0,5" VerticalAlignment="Center" Height="16"/>
                                     <TextBlock Grid.Row="1" Grid.Column="1" Text="Значение" Margin="5,5,0,4" VerticalAlignment="Center" Height="16"/>
-                                    <Border Grid.Row="2" Grid.Column="0" Margin="5,24,4,24" Background="White" BorderBrush="#FF6E6E6E" BorderThickness="1">
-                                        <TextBlock Text="{Binding EditRegister.Address}"  VerticalAlignment="Center" Padding="5,0,0,0" />
+
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="Автозапись" VerticalAlignment="Center" Height="16" Margin="5,0,172,0"/>
+                                    <CheckBox Grid.Row="2" Grid.Column="1" Margin="87,3,142,0" VerticalAlignment="Center" IsChecked="{Binding EditRegister.AutoWrite}" Height="13"/>
+                                    <Border Grid.Row="3" Grid.Column="0" Margin="5,8,4,63" Background="White" BorderBrush="#FF6E6E6E" BorderThickness="1">
+                                        <TextBlock Text="{Binding EditRegister.Address, UpdateSourceTrigger=PropertyChanged}"  VerticalAlignment="Center" Padding="5,2,0,0" Height="18" />
                                     </Border>
-                                    <Border Grid.Row="2" Grid.Column="1" Margin="3,24" Background="White" BorderBrush="#FF6E6E6E" BorderThickness="1">
-                                        <TextBox  Text="{Binding EditRegister.NumericData}" Background="{x:Null}" VerticalAlignment="Center" BorderBrush="{x:Null}" VerticalContentAlignment="Center">
+                                    <Border Grid.Row="3" Grid.Column="1" Margin="2,8,10,63" Background="White" BorderBrush="#FF6E6E6E" BorderThickness="1">
+                                        <TextBox  Text="{Binding EditRegister.NumericData, UpdateSourceTrigger=PropertyChanged}" Background="{x:Null}" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="18" BorderBrush="{x:Null}" Padding="5,0,0,0">
                                             <TextBox.Style>
                                                 <Style TargetType="TextBox">
                                                     <Style.Triggers>
@@ -141,10 +149,15 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </TextBox.Style>
+                                            <interactivity:Interaction.Triggers>
+                                                <interactivity:EventTrigger EventName="TextChanged">
+                                                    <interactivity:InvokeCommandAction Command="{Binding AutoWriteMultipleCommand}"/>
+                                                </interactivity:EventTrigger>
+                                            </interactivity:Interaction.Triggers>
                                         </TextBox>
                                     </Border>
 
-                                    <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding EditRegister.CoilData}" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" HorizontalAlignment="Center" VerticalContentAlignment="Stretch">
+                                    <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding EditRegister.CoilData}" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" HorizontalAlignment="Center" VerticalContentAlignment="Stretch" Margin="87,13,142,56" Height="22" Width="25" >
                                         <CheckBox.Style>
                                             <Style TargetType="CheckBox">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -155,10 +168,15 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </CheckBox.Style>
+                                        <interactivity:Interaction.Triggers>
+                                            <interactivity:EventTrigger EventName="SourceUpdated">
+                                                <interactivity:InvokeCommandAction Command="{Binding AutoWriteMultipleCommand}"/>
+                                            </interactivity:EventTrigger>
+                                        </interactivity:Interaction.Triggers>
                                     </CheckBox>
 
 
-                                    <ListBox Grid.Row="2" Grid.Column="1" ItemsSource="{Binding EditRegister.BinData}" VerticalContentAlignment="Center" Margin="0" VerticalAlignment="Center">
+                                    <ListView Grid.Row="3" Grid.Column="1" ItemsSource="{Binding EditRegister.BinData}" VerticalContentAlignment="Center" VerticalAlignment="Center" Height="73" Margin="2,8,5,10">
                                         <ListBox.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <WrapPanel Orientation="Horizontal"/>
@@ -172,7 +190,9 @@
                                                         <RowDefinition/>
                                                     </Grid.RowDefinitions>
                                                     <Label Grid.Row="0" Content="{Binding Index}" Padding="0" HorizontalContentAlignment="Center"/>
-                                                    <CheckBox Grid.Row="1" IsChecked="{Binding Value}"/>
+                                                    <CheckBox Grid.Row="1" IsChecked="{Binding Value}" Command="{Binding DataContext.AutoWriteMultipleCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=ListView}}">
+                                                       
+                                                    </CheckBox>
                                                 </Grid>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>
@@ -186,8 +206,9 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </ListBox.Style>
-                                    </ListBox>
-                                    <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal">
+                                       
+                                    </ListView>
+                                    <StackPanel Grid.Column="1" Grid.Row="4" Orientation="Horizontal">
                                         <Button Content="Запись Single" Margin="5,0" Command="{Binding WriteSingleCommand}" Width="80"/>
                                         <Button Content="Запись Multiple" Margin="5,0" Command="{Binding WriteMultipleCommand}" Width="120"/>
                                     </StackPanel>
@@ -238,7 +259,7 @@
                     </Grid.ColumnDefinitions>
                     <oxy:PlotView Grid.Column="0" Model="{Binding GraphModel.Model}"/>
                     <ListView Grid.Column="1" ItemsSource="{Binding GraphModel.SeriesCollection}">
-                        
+
                     </ListView>
                     <StackPanel Grid.Column="2">
                         <Border BorderBrush="Bisque" BorderThickness="2" Margin="0,0,0,5">

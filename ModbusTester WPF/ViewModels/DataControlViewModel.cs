@@ -82,8 +82,14 @@ namespace ModbusTester_WPF.ViewModels
                 WriteSingleEvent?.Invoke(this, null);
             },p=>CanExecuteSingle());
 
-            WriteMultipleCommand = new RelayCommand(o => {
+            WriteMultipleCommand = new RelayCommand(o =>
+            {
                 WriteMultipleEvent?.Invoke(this, null);
+            });
+            AutoWriteMultipleCommand = new RelayCommand(o =>
+            {
+                if (EditRegister.AutoWrite)
+                    WriteMultipleEvent?.Invoke(this, null);
             });
 
             CoilList = new BindingList<CoilPoint>();
@@ -336,9 +342,19 @@ namespace ModbusTester_WPF.ViewModels
                 RaisePropertyChanged();
 
             }
-        }   
-        
-        public int ControlPoint { get; set; }
+        }
+
+        public int ControlPoint
+        {
+            get { return _controlPoint; }
+            set
+            {
+                _controlPoint = value;
+                if (ControlPoint >= 0)
+                    EditRegister.BeginEdit(_mode, ControlTableSource[ControlPoint]);
+            }
+        }
+
         public EditionViewModel EditRegister { get; set; }
 
         public ICommand SetUshortFormat { get; private set; }
@@ -352,7 +368,10 @@ namespace ModbusTester_WPF.ViewModels
         public ICommand OpenEditDialog { get; private set; }
         public ICommand WriteSingleCommand { get; private set; }
         public ICommand WriteMultipleCommand { get; private set; }
-       
+
+        public ICommand AutoWriteMultipleCommand { get; private set; }
+
+
         public event EventHandler WriteSingleEvent;
         public event EventHandler WriteMultipleEvent;
 
@@ -364,6 +383,7 @@ namespace ModbusTester_WPF.ViewModels
         int _lastCount;
         int _lastIntro;
         private IBindingList _controlTableSource;
+        private int _controlPoint=-1;
 
         public void ApplyConfig(ModBusDriver driver, ModbusConfig config)
         {

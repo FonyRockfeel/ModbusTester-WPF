@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Runtime.Remoting.Channels;
@@ -42,6 +44,9 @@ namespace ModbusTester_WPF.ViewModels
 
         private ExtensiveWindow ExtWindow;
         private CancellationTokenSource _tokenSrc;
+        private object _syncLock = new object();
+
+        private delegate TaskParam TaskParamDelegate();
        
 
         public MBRequestData ReadData
@@ -119,7 +124,7 @@ namespace ModbusTester_WPF.ViewModels
             }
         }
 
-        public List<int> AvailableBaudrates => new[] {9600, 19200, 57600, 115200}.ToList();
+        public List<int> AvailableBaudrates => new [] {4800, 9600, 19200, 38400, 57600, 115200}.ToList();
 
         public List<Parity> ParityBits
             => new[] {Parity.Even, Parity.Mark, Parity.None, Parity.Odd, Parity.Space}.ToList();
@@ -214,6 +219,8 @@ namespace ModbusTester_WPF.ViewModels
         EventHandler _dataUpdateHandler = null;
         EventHandler _connectionRecoveryHandler = null;
         private string _writeStatusString="--------";
+
+        private int _debugCounter;
 
         public ModBusDriver ModBusDriver
         {
@@ -533,14 +540,28 @@ namespace ModbusTester_WPF.ViewModels
             byte[] responseArr;
             string errorMess;
             int code=0;
+#if DEBUG
+            _debugCounter++;
+            Debug.WriteLine(_debugCounter);
+#endif
             try
             {
+                
                 var resData = await Task.Run(() =>
                 {
+                    var ct = _debugCounter;
                     byte[] req;
                     byte[] res;
                     string err;
-                    var cd = ModBusDriver.GetData(out req, out res, out err);
+                    int cd;
+                    lock (_syncLock)
+                    {
+                        cd = ModBusDriver.GetData(out req, out res, out err);
+                    }
+#if DEBUG
+                    Debug.WriteLine(ct);
+                    Debug.WriteLine("----------------------");
+#endif
                     return new {Req = req, Res = res, Err = err, Cd = cd};
                 }, _tokenSrc.Token);
                 if (resData == null) return;
@@ -557,9 +578,22 @@ namespace ModbusTester_WPF.ViewModels
             {
                 _timer.Stop();
                 _timer.Tick -= _dataUpdateHandler;
-                _linkRecoveryTimer.Tick+= _connectionRecoveryHandler;
+                _linkRecoveryTimer.Tick += _connectionRecoveryHandler;
                 _linkRecoveryTimer.Start();
                 StatusString = "Порт недоступен. Пробую найти указаный порт...";
+                return;
+            }
+            catch (Exception ex)
+            {
+                using (StreamWriter wr = new StreamWriter("ExceptionsLog.txt", true))
+                {
+                    wr.WriteLine(DateTime.Now);
+                    wr.WriteLine(ex.Message);
+                    wr.WriteLine(ex.StackTrace);
+                    wr.WriteLine();
+                    wr.WriteLine();
+                }
+                MessageBox.Show("Произошла непредвиденная ошибка");
                 return;
             }
             string rq="";
@@ -631,4 +665,11 @@ namespace ModbusTester_WPF.ViewModels
         }
     }
 
+    struct TaskParam
+    {
+        public byte[] ReqArr;
+        public byte[] ResArr;
+        public string ErrMess;
+        public int Code;
+    }
 }
